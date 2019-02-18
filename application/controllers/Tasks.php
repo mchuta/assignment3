@@ -40,6 +40,43 @@ class Tasks extends CI_Controller
         }
     }
 
+
+    public function edit($project_id, $task_id)
+    {
+
+        $this->form_validation->set_rules('task_name', 'Task Name', 'trim|required');
+        $this->form_validation->set_rules('due_date', 'Task Due Date', 'trim|required');
+        $this->form_validation->set_rules('task_body', 'Task Description', 'trim|required');
+
+        if ($this->form_validation->run() == false) {
+            $data['the_task'] = $this->task_model->get_task($task_id);
+
+            $data['main_view'] = 'tasks/edit_task';
+            $this->load->view('layouts/main', $data);
+        } else {
+            $data = array(
+                'task_name' => $this->input->post('task_name'),
+                'due_date' => $this->input->post('due_date'),
+                'task_body' => $this->input->post('task_body'),
+                'project_id' => $project_id,
+                'id' => $task_id
+                );
+
+            if ($this->task_model->edit_task($task_id, $data)) {
+                $this->session->set_flashdata('task_updated', 'Your Task has been updated');
+
+                redirect("projects/display/$project_id");
+            }
+        }
+    }
+
+
+    public function delete($project_id, $task_id) 
+    {
+        $this->task_model->delete_task($task_id);
+        $this->session->set_flashdata('task_deleted', 'Your task has been deleted');
+        redirect("projects/display/$project_id");
+    }
     
     // your new methods go here
     
